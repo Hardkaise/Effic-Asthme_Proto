@@ -1,56 +1,48 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using UnityEngine;
+using System;
 
-public class TestButtonScript : MonoBehaviour
+public class Shaking : MonoBehaviour
 {
     private float shakingDuration = 0;
     public int shakingMotions = 1;
     public int shakingThreshold = 3;
-
-    public static float LowPassKernelWidthInSeconds = 0.4f;
-// The greater the value of LowPassKernelWidthInSeconds, the slower the filtered value will converge towards current input sample (and vice versa).
-
-    public static float AccelerometerUpdateInterval = 1 / 60;
-    private float LowPassFilterFactor = AccelerometerUpdateInterval / LowPassKernelWidthInSeconds;
-
-    private Vector3 lowPassValue = Vector3.zero; // should be initialized with 1st sample
-
-    private Vector3  PhoneAcc;
-    private Vector3 PhoneDeltaAcc;
-
+    private List<double> lastAccValues = new List<double>();
     private AudioSource sound;
+    private float lastbeep;
 
 	void Start ()
 	{
 	    sound = GetComponent<AudioSource>();
 	}
 
-    Vector3 LowPassFilter(Vector3 newSample) {
-        lowPassValue = Vector3.Lerp(lowPassValue, newSample, LowPassFilterFactor);
-        return lowPassValue;
-    }
-
     bool Shaked()
     {
-        return Mathf.Abs(PhoneDeltaAcc.y) >= .2;
+        return lastAccValues.Exists(val => Math.Abs(val) > 2 &&
+                                    lastAccValues.Exists(val2 => Math.Abs(val2) > val &&
+                                                                 ((int)val ^ (int)val2) > 0));
     }
 
     void FixedUpdate () {
 
-        PhoneAcc = Input.acceleration;
-        PhoneDeltaAcc = PhoneAcc - LowPassFilter(PhoneAcc);
-
+        foreach (var inp in Input.accelerationEvents)
+            lastAccValues.Add(Math.Round(inp.acceleration.y, 2));
         if (Shaked())
         {
-            Debug.Log("Shake !");
+            lastAccValues.Clear();
+            //Debug.Log("Shake !");
             shakingMotions += 1;
         }
-        if (shakingMotions >= shakingThreshold)
+        if (shakingMotions >= shakingThreshold && Time.time - lastbeep > 3)
         {
+            //Debug.Log("DING !");
+            lastbeep = Time.time;
             sound.Play(0);
             shakingMotions = 0;
         }
+        Debug.Log("Shaking motions :" + shakingMotions);
     }
 
 }
