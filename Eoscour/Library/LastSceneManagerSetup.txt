@@ -1,4 +1,8 @@
 sceneSetups:
+<<<<<<< HEAD
 - path: Assets/Menus.unity
+=======
+- path: Assets/Entrainement.unity
+>>>>>>> f7a23545a77efc3c10e48747c7e5dcc049bb3a82
   isLoaded: 1
   isActive: 1
