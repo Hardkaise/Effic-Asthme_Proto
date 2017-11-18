@@ -5,11 +5,11 @@ using UnityEngine;
 public class TestButtonScript : MonoBehaviour
 {
     private float shakingDuration = 0;
-    public float shakingThreshold = 0.5f;
+    public int shakingMotions = 1;
+    public int shakingThreshold = 3;
 
-    public static float LowPassKernelWidthInSeconds = 1;
+    public static float LowPassKernelWidthInSeconds = 0.4f;
 // The greater the value of LowPassKernelWidthInSeconds, the slower the filtered value will converge towards current input sample (and vice versa).
-//    You should be able to use LowPassFilter() function instead of avgSamples().
 
     public static float AccelerometerUpdateInterval = 1 / 60;
     private float LowPassFilterFactor = AccelerometerUpdateInterval / LowPassKernelWidthInSeconds;
@@ -31,9 +31,9 @@ public class TestButtonScript : MonoBehaviour
         return lowPassValue;
     }
 
-    bool IsShaking()
+    bool Shaked()
     {
-        return Mathf.Abs(PhoneDeltaAcc.x) >= .2;
+        return Mathf.Abs(PhoneDeltaAcc.y) >= .2;
     }
 
     void FixedUpdate () {
@@ -41,18 +41,15 @@ public class TestButtonScript : MonoBehaviour
         PhoneAcc = Input.acceleration;
         PhoneDeltaAcc = PhoneAcc - LowPassFilter(PhoneAcc);
 
-        if (IsShaking())
+        if (Shaked())
         {
-            shakingDuration += Time.fixedDeltaTime;
+            Debug.Log("Shake !");
+            shakingMotions += 1;
         }
-        else if (!IsShaking())
-        {
-            shakingDuration = 0;
-        }
-        if (shakingDuration > shakingThreshold)
+        if (shakingMotions >= shakingThreshold)
         {
             sound.Play(0);
-            shakingDuration = 0;
+            shakingMotions = 0;
         }
     }
 
