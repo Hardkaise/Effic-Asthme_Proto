@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class BreathControl : MonoBehaviour
 {
@@ -8,13 +10,17 @@ public class BreathControl : MonoBehaviour
     public Sprite iconSprite;
     public Vector3 iconSize;
     public Vector3 iconPos;
+    public Vector3 iconHBox;
 
     public Sprite dispSprite;
     public Vector3 dispSize;
     public Vector3 dispPos;
+    public Vector3 dispHBox;
 
     private float _transtime;
     public float transtime;
+
+    public Vector3 fusedTransform;
 
     private bool _isIcon = true;
     private SpriteRenderer _renderer;
@@ -27,7 +33,6 @@ public class BreathControl : MonoBehaviour
         {
             if (!animating)
                 IconToItem();
-            Debug.Log("Exit IconBar");
         }
     }
 
@@ -39,10 +44,16 @@ public class BreathControl : MonoBehaviour
                 ItemToIcon();
             else
                 first_trigger = !first_trigger;
-            Debug.Log("Enter IconBar");
         }
+        else if (other.name == "Ventoline" && transform.childCount == 0)
+            FuseWithVentoline(other.gameObject);
     }
 
+    void FuseWithVentoline(GameObject other)
+    {
+        other.transform.parent = transform;
+        other.transform.localPosition = fusedTransform;
+    }
 
     private void GoSmall()
     {
@@ -100,6 +111,19 @@ public class BreathControl : MonoBehaviour
 
     void TouchMove()
     {
+        if (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(0).phase == TouchPhase.Stationary))
+        {
+            Vector3 finger = Input.GetTouch(0).position;
+            Vector3 touchDeltaPosition = Camera.main.ScreenToWorldPoint(finger);
+            Vector2 touchPosWorld2D = new Vector2(touchDeltaPosition.x , touchDeltaPosition.y);
+            RaycastHit2D hit = Physics2D.Raycast(touchPosWorld2D, Camera.main.transform.forward);
+
+            if (hit.collider != null && hit.collider.gameObject == this.gameObject)
+            {
+                touchDeltaPosition.z = transform.position.z;
+                transform.position = touchDeltaPosition;
+            }
+        }
     }
 
     // Update is called once per frame
@@ -110,7 +134,7 @@ public class BreathControl : MonoBehaviour
             GoSmall();
         else if (animating)
             GoBig();
-        else
+        else if (transform.parent == null)
             TouchMove();
     }
 }

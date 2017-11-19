@@ -6,7 +6,6 @@ using System;
 
 public class Shaking : MonoBehaviour
 {
-    private float shakingDuration = 0;
     public int shakingMotions = 1;
     public int shakingThreshold = 3;
     private List<double> lastAccValues = new List<double>();
@@ -23,6 +22,11 @@ public class Shaking : MonoBehaviour
         return lastAccValues.Exists(val => Math.Abs(val) > 2 &&
                                     lastAccValues.Exists(val2 => Math.Abs(val2) > val &&
                                                                  ((int)val ^ (int)val2) > 0));
+    }
+
+    public bool WasShaked()
+    {
+        return Time.time - lastbeep < 1;
     }
 
     void FixedUpdate () {
@@ -42,7 +46,6 @@ public class Shaking : MonoBehaviour
             sound.Play(0);
             shakingMotions = 0;
         }
-        Debug.Log("Shaking motions :" + shakingMotions);
     }
 
 }

@@ -9,26 +9,31 @@ public class VentolinManager : MonoBehaviour
     public Sprite ventolinIcon;
     public Vector3 iconSize;
     public Vector3 iconPos;
+    public Vector3 iconHBox;
 
     public Sprite ventolinDisplay;
     public Vector3 dispSize;
     public Vector3 dispPos;
+    public Vector3 dispHBox;
 
     public float transtime;
     private float _transtime;
 
-    private bool _isIcon = true;
+    public int pumps = 0;
+    public int waitedPumps = 0;
+
+    public bool _isIcon = true;
     private bool animating = false;
     private SpriteRenderer _renderer;
     private bool first_trigger = true;
+
 
     void OnTriggerExit2D(Collider2D other)
     {
         if (other.name == "IconBar")
         {
-            if (!animating)
+            if (!animating && transform.parent == null)
                 IconToItem();
-            Debug.Log("Exit IconBar");
         }
     }
 
@@ -36,11 +41,10 @@ public class VentolinManager : MonoBehaviour
     {
         if (other.name == "IconBar")
         {
-            if (!first_trigger && !animating)
+            if (!first_trigger && !animating && transform.parent == null)
                 ItemToIcon();
             else
                 first_trigger = !first_trigger;
-            Debug.Log("Enter IconBar");
         }
     }
 
@@ -76,7 +80,9 @@ public class VentolinManager : MonoBehaviour
         _renderer.sprite = ventolinIcon;
         _isIcon = true;
         animating = true;
-        transform.GetChild(0).gameObject.SetActive(false);
+        if (transform.childCount > 0)
+            transform.GetChild(0).gameObject.SetActive(false);
+        GetComponent<BoxCollider2D>().size = iconHBox;
     }
 
     public void IconToItem()
@@ -84,7 +90,9 @@ public class VentolinManager : MonoBehaviour
         _renderer.sprite = ventolinDisplay;
         _isIcon = false;
         animating = true;
-        transform.GetChild(0).gameObject.SetActive(true);
+        if (transform.childCount > 0)
+            transform.GetChild(0).gameObject.SetActive(true);
+        GetComponent<BoxCollider2D>().size = dispHBox;
     }
 
 	// Use this for initialization
@@ -104,20 +112,42 @@ public class VentolinManager : MonoBehaviour
             transform.localScale = dispSize;
     }
 
-    void TouchMove()
+    void TouchDrag ()
     {
+        Debug.Log("LOLMDR");
+        if (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(0).phase == TouchPhase.Stationary))
+        {
+            Vector3 finger = Input.GetTouch(0).position;
+            Vector3 touchDeltaPosition = Camera.main.ScreenToWorldPoint(finger);
+            Vector2 touchPosWorld2D = new Vector2(touchDeltaPosition.x , touchDeltaPosition.y);
+            RaycastHit2D hit = Physics2D.Raycast(touchPosWorld2D, Camera.main.transform.forward);
+
+            if (hit.collider != null && hit.collider.gameObject == this.gameObject)
+            {
+                touchDeltaPosition.z = transform.position.z;
+                transform.position = touchDeltaPosition;
+            }
+        }
     }
 
 	// Update is called once per frame
 	void Update ()
 	{
-	    //DevAdjust();
 	    if (animating && _isIcon)
+	    {
+	        Debug.Log("Small");
 	        GoSmall();
+	    }
 	    else if (animating)
+	    {
+	        Debug.Log("Big");
 	        GoBig();
-	    else
-	        TouchMove();
+	    }
+	    else if (transform.parent == null)
+	    {
+	        Debug.Log("Drag");
+	        TouchDrag();
+	    }
 
 	}
 }

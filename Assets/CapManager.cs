@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemMover : MonoBehaviour {
-
-
+public class CapManager : MonoBehaviour
+{
+    public int upperBound;
+    public int lowerBound;
+    public int leftmostBound;
+    public int rightmostBound;
 
 	// Use this for initialization
 	void Start () {
@@ -26,9 +28,13 @@ public class ItemMover : MonoBehaviour {
         }
     }
 
-
 	// Update is called once per frame
 	void Update () {
-	    TouchDrag();
+         TouchDrag();
+	    if (transform.localPosition.x > rightmostBound ||
+	        transform.localPosition.x < leftmostBound ||
+	        transform.localPosition.y > upperBound ||
+	        transform.localPosition.y < lowerBound)
+	        Destroy(gameObject);
 	}
 }
