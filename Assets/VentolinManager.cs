@@ -21,6 +21,7 @@ public class VentolinManager : MonoBehaviour
 
     public int pumps = 0;
     public int waitedPumps = 0;
+    public int breathings = 5;
 
     public bool _isIcon = true;
     private bool animating = false;
@@ -130,6 +131,25 @@ public class VentolinManager : MonoBehaviour
         }
     }
 
+    void DoPumps()
+    {
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        {
+            Vector3 finger = Input.GetTouch(0).position;
+            Vector3 touchDeltaPosition = Camera.main.ScreenToWorldPoint(finger);
+            Vector2 touchPosWorld2D = new Vector2(touchDeltaPosition.x, touchDeltaPosition.y);
+            RaycastHit2D hit = Physics2D.Raycast(touchPosWorld2D, Camera.main.transform.forward);
+
+            if (hit.collider != null && hit.collider.gameObject == this.gameObject)
+            {
+                if (breathings >= 5)
+                    waitedPumps++;
+                breathings = 0;
+                pumps += 1;
+            }
+        }
+    }
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -147,6 +167,10 @@ public class VentolinManager : MonoBehaviour
 	    {
 	        Debug.Log("Drag");
 	        TouchDrag();
+	    }
+	    else
+	    {
+	        DoPumps();
 	    }
 
 	}

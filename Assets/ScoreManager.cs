@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -20,6 +23,7 @@ public class ScoreManager : MonoBehaviour
     public Shaking shaker;
     public VentolinManager VentolinManager;
     public GameObject breath;
+    public GameObject endgameReport;
 
 
     void checkCap()
@@ -57,10 +61,31 @@ public class ScoreManager : MonoBehaviour
 
     void checkWaitPumps()
     {
-        if (VentolinManager.pumps == VentolinManager.waitedPumps && VentolinManager.waitedPumps != 0)
+        if (VentolinManager.pumps == VentolinManager.waitedPumps && VentolinManager.waitedPumps > 2)
             _points["5 respirations entre les bouffées"] = true;
         else
             _points["5 respirations entre les bouffées"] = false;
+    }
+
+    public void End()
+    {
+        Destroy(GameObject.Find("IconBar"));
+        Destroy(GameObject.Find("Button"));
+        Destroy(GameObject.Find("Ventoline"));
+        Destroy(GameObject.Find("BreathChamber"));
+        Destroy(GameObject.Find("Child"));
+        Destroy(GameObject.Find("Shaker"));
+        var report = Instantiate(endgameReport);
+        report.transform.localScale = new Vector3(1, 1, 1);
+        report.transform.SetParent(GameObject.Find("Canvas").transform);
+        report.transform.localPosition = new Vector3(0, 0, 0);
+        report.transform.localScale = new Vector3(1, 1, 1);
+        for (int i = 0; i < report.transform.childCount; i++)
+        {
+            report.transform.GetChild(i).GetComponent<Text>().text = String.Format("{0}: {1}",
+                _points.Keys.ElementAt(i),
+                (_points.Values.ElementAt(i) == false)? "Raté" :"Réussi !");
+        }
     }
 
 	// Use this for initialization
