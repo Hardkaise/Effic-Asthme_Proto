@@ -27,24 +27,25 @@ public class ChildManager : MonoBehaviour
 
     void attachLoneVentoline(GameObject obj)
     {
-        Debug.Log("Fusing with Ventoline");
         obj.transform.parent = transform;
         obj.transform.localPosition = ventolineAttach;
         Destroy(GameObject.Find("BreathChamber"));
+        obj.transform.localScale = new Vector2(0.5f, 0.5f);
     }
 
     void attachBreathChamber(GameObject obj)
     {
-        Debug.Log("Fusing with Chamber");
         obj.transform.parent = transform;
         obj.transform.localPosition = BreathChamberAttach;
+        obj.transform.localScale = new Vector2(0.48f, 0.64f);
+        GameObject.Find("Ventoline").GetComponent<BoxCollider2D>().size = new Vector2(50, 35);
     }
 
 	// Use this for initialization
 	void Start ()
 	{
-	    Screen.orientation = ScreenOrientation.Landscape;
 	    _transtime = transtime;
+	    Screen.orientation = ScreenOrientation.LandscapeRight;
 	}
 	
 	// Update is called once per frame

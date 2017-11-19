@@ -24,6 +24,9 @@ public class ScoreManager : MonoBehaviour
     public GameObject breath;
     public GameObject endgameReport;
 
+    public Sprite YesSprite;
+    public Sprite NoSprite;
+
 
     void checkCap()
     {
@@ -79,12 +82,18 @@ public class ScoreManager : MonoBehaviour
         report.transform.SetParent(GameObject.Find("Canvas").transform);
         report.transform.localPosition = new Vector3(0, 0, 0);
         report.transform.localScale = new Vector3(1, 1, 1);
-        for (int i = 0; i < report.transform.childCount; i++)
+        report.transform.GetChild(report.transform.childCount - 1).localScale = new Vector2(2.44f, 2.44f);
+        report.transform.GetChild(report.transform.childCount - 1).localPosition = new Vector2(61, -494);
+        for (int i = 2; i < report.transform.childCount; i++)
         {
-            report.transform.GetChild(i).GetComponent<Text>().text = String.Format("{0}: {1}",
-                _points.Keys.ElementAt(i),
-                (_points.Values.ElementAt(i) == false)? "Raté" :"Réussi !");
+            report.transform.GetChild(i).transform.position = new Vector3(report.transform.GetChild(i).transform.position.x,
+                report.transform.GetChild(i).transform.position.y, -7);
+            var blop = report.transform.GetChild(i).GetComponent<SpriteRenderer>();
+            if (blop != null)
+                blop.sprite = (_points.Values.ElementAt(i - 2) == false)? NoSprite :YesSprite;
+            Debug.Log("I IS : " + i);
         }
+
     }
 
 	// Use this for initialization
@@ -93,17 +102,13 @@ public class ScoreManager : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	void Update ()
-	{
-	    checkCap();
-	    checkShake();
-	    checkChamber();
-	    checkPumps();
-	    checkWaitPumps();
+    void Update()
+    {
+        checkCap();
+        checkShake();
+        checkChamber();
+        checkPumps();
+        checkWaitPumps();
 
-	    foreach (var point in _points)
-	    {
-	        Debug.Log(String.Format("[{0}, {1}]", point.Key, point.Value));
-	    }
-	}
+    }
 }

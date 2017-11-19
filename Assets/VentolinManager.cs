@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+    using UnityEngine;
 using UnityEngine.UI;
 
 public class VentolinManager : MonoBehaviour
@@ -22,9 +22,11 @@ public class VentolinManager : MonoBehaviour
     public int pumps = 0;
     public int waitedPumps = 0;
     public int breathings = 5;
+    private float lastbreath;
 
     public bool _isIcon = true;
     private bool animating = false;
+    private bool animating_pump = false;
     private SpriteRenderer _renderer;
     private bool first_trigger = true;
 
@@ -103,6 +105,7 @@ public class VentolinManager : MonoBehaviour
 	    transform.GetChild(0).gameObject.SetActive(false);
 	    _renderer.sprite = ventolinIcon;
 	    _transtime = transtime;
+	    lastbreath = Time.time;
 	}
 
     void DevAdjust()
@@ -115,7 +118,6 @@ public class VentolinManager : MonoBehaviour
 
     void TouchDrag ()
     {
-        Debug.Log("LOLMDR");
         if (Input.touchCount > 0 && (Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(0).phase == TouchPhase.Stationary))
         {
             Vector3 finger = Input.GetTouch(0).position;
@@ -131,10 +133,16 @@ public class VentolinManager : MonoBehaviour
         }
     }
 
+    void AnimPump()
+    {
+
+    }
+
     void DoPumps()
     {
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (!animating_pump && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
+            Debug.Log("pumping !");
             Vector3 finger = Input.GetTouch(0).position;
             Vector3 touchDeltaPosition = Camera.main.ScreenToWorldPoint(finger);
             Vector2 touchPosWorld2D = new Vector2(touchDeltaPosition.x, touchDeltaPosition.y);
@@ -142,12 +150,18 @@ public class VentolinManager : MonoBehaviour
 
             if (hit.collider != null && hit.collider.gameObject == this.gameObject)
             {
+                Debug.Log("Catch pump !");
                 if (breathings >= 5)
+                {
+                    Debug.Log("waited pump isoké");
                     waitedPumps++;
+                }
                 breathings = 0;
                 pumps += 1;
             }
         }
+        else if (animating_pump)
+            AnimPump();
     }
 
 	// Update is called once per frame
@@ -155,23 +169,25 @@ public class VentolinManager : MonoBehaviour
 	{
 	    if (animating && _isIcon)
 	    {
-	        Debug.Log("Small");
 	        GoSmall();
 	    }
 	    else if (animating)
 	    {
-	        Debug.Log("Big");
 	        GoBig();
 	    }
 	    else if (transform.parent == null)
 	    {
-	        Debug.Log("Drag");
 	        TouchDrag();
 	    }
-	    else
+	    else if (!_isIcon)
 	    {
 	        DoPumps();
 	    }
-
+	    Debug.Log("Nothing");
+	    if (lastbreath - Time.time > 1)
+	    {
+	        lastbreath = Time.time;
+	        breathings += 1;
+	    }
 	}
 }
