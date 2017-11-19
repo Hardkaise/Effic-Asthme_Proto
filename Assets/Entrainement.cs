@@ -9,5 +9,10 @@ namespace DefaultNamespace
         {
             SceneManager.LoadScene(sceneIndex);
         }
+
+        public void LevelOne()
+        {
+            SceneManager.LoadScene(2);
+        }
     }
 }
