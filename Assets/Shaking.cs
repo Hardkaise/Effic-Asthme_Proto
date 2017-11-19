@@ -9,12 +9,10 @@ public class Shaking : MonoBehaviour
     public int shakingMotions = 1;
     public int shakingThreshold = 3;
     private List<double> lastAccValues = new List<double>();
-    private AudioSource sound;
     private float lastbeep;
 
 	void Start ()
 	{
-	    sound = GetComponent<AudioSource>();
 	}
 
     bool Shaked()
@@ -43,7 +41,6 @@ public class Shaking : MonoBehaviour
         {
             //Debug.Log("DING !");
             lastbeep = Time.time;
-            sound.Play(0);
             shakingMotions = 0;
         }
     }
